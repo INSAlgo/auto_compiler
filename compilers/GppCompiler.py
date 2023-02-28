@@ -17,7 +17,8 @@ class GppCompiler(Compiler):
 
     async def build_files(self) -> list[str]:
         builders = [self.build_file(file) for file in self.to_build]
-        return await asyncio.gather(*builders)
+        res = await asyncio.gather(*builders)
+        return [el[1] for el in res if el[0]], [el[1] for el in res if not el[0]]
 
     async def build_file(self, file: Source) -> str:
         if not os.path.exists("out/"):
@@ -28,7 +29,9 @@ class GppCompiler(Compiler):
         )
         code = await process.wait()
         if not code:
-            return executable
+            return True, executable
+        else :
+            return False, (file.file, "Compiler error")
 
     def clean_files(self) -> None:
         pass

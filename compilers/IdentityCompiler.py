@@ -15,7 +15,7 @@ class IdentityCompiler(Compiler):
         self.to_build.append(file)
 
     async def build_files(self) -> list[str]:
-        return [await self.build_file(file) for file in self.to_build]
+        return [await self.build_file(file) for file in self.to_build], []
 
     async def build_file(self, file: Source) -> str:
         return file.file

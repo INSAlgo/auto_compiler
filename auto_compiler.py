@@ -3,7 +3,7 @@ import asyncio
 import os.path
 
 from auto_compiler.source import Source
-from auto_compiler.compiler import Compiler
+from auto_compiler.compiler import Compiler, Error
 from auto_compiler.compilers import *
 
 
@@ -13,7 +13,19 @@ class AutoCompiler:
     def __init__(self, source_folder: str) -> None:
         self.source_folder = source_folder
 
-    async def compile_all(self) -> str:
+    async def make_all_executables(self, out_dir: str) -> tuple[list[str], list[Error]]:
+        success, errors = await self._compile_all()
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+        for el in success:
+            path = os.path.join(out_dir, os.path.basename(el))
+            print(os.path.islink(path))
+            if os.path.islink(path):
+                os.unlink(path)
+            os.symlink(el,
+        return success, errors
+
+    async def _compile_all(self) -> tuple[list[str], list[Error]]:
         coros = []
         compilers = self._get_compilers()
         to_build = set()
@@ -23,10 +35,12 @@ class AutoCompiler:
         for compiler in to_build:
             coros.append(compiler.build_files())
         res = await asyncio.gather(*coros)
-        ret = []
+        success = []
+        errors = []
         for el in res:
-            ret += el
-        return ret
+            success += el[0]
+            errors += el[1]
+        return success, errors
 
     async def compile_file(self, name: str) -> str:
         compilers = self._get_compilers()

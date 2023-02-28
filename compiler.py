@@ -1,9 +1,12 @@
 import asyncio
 
+from typing import Union
+
 from abc import ABC, ABCMeta, abstractmethod
 
 from auto_compiler.source import Source
 
+Error = tuple[str, str]
 
 class MetaCompiler(ABCMeta):
     __inheritors__ = set()
@@ -28,14 +31,14 @@ class Compiler(ABC, metaclass=MetaCompiler):
         """
 
     @abstractmethod
-    async def build_files(self) -> list[str]:
+    async def build_files(self) -> tuple[list[str], list[Error]]:
         """
             Builds all files added and returns the paths to the executables
         """
         ...
 
     @abstractmethod
-    async def build_file(self, file: Source) -> str:
+    async def build_file(self, file: Source) -> tuple[bool, Union[str, Error]]:
         """
            Builds the file and returns the path to the executable
         """
