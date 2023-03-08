@@ -33,7 +33,6 @@ class RustCompiler(Compiler):
 
     @staticmethod
     def make_cargo_toml(file: Path):
-        # Should probably use something more robust than regex
         cargo_file = f"[package]\nname='{file.stem}'\nversion='1.0.0'\nedition='2018'\n[dependencies]\nrand='0.8.4'\n"
         cargo_file += f"[[bin]]\npath='{file}'\nname='{file.stem}'"
         with open("Cargo.toml", "w") as f:
