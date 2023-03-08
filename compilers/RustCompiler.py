@@ -9,7 +9,6 @@ from ..errors import CompilerException
 
 
 class RustCompiler(Compiler):
-    # to_build: list[Source]
     supported_files = ['.rs']
 
     def __init__(self) -> None:
