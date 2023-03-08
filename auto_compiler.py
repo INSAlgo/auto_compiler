@@ -1,59 +1,57 @@
 import asyncio
 
-import os.path
+from pathlib import Path
 
-from auto_compiler.source import Source
-from auto_compiler.compiler import Compiler, Error
+from auto_compiler.compiler import Compiler
 from auto_compiler.compilers import *
-
+from auto_compiler.errors import CompilerException
 
 class AutoCompiler:
     source_folter: str
 
-    def __init__(self, source_folder: str) -> None:
+    def __init__(
+        self,
+        source_folder: Path,
+        compile_folder: Path = Path('out'),
+        result_folder: Path = Path('ais')
+    ) -> None:
+
         self.source_folder = source_folder
+        self.compile_folder = compile_folder
+        self.result_folder = result_folder
 
-    async def make_all_executables(self, out_dir: str) -> tuple[list[str], list[Error]]:
-        success, errors = await self._compile_all()
-        if not os.path.exists(out_dir):
-            os.makedirs(out_dir)
-        for el in success:
-            path = os.path.join(out_dir, os.path.basename(el))
-            print(os.path.islink(path))
-            if os.path.islink(path):
-                os.unlink(path)
-            os.symlink(el,
-        return success, errors
-
-    async def _compile_all(self) -> tuple[list[str], list[Error]]:
-        coros = []
-        compilers = self._get_compilers()
-        to_build = set()
+    async def compile_user(self, name: str) -> Path:
         for source in self._get_sources():
-            compilers[source.type].add_file(source)
-            to_build.add(compilers[source.type])
-        for compiler in to_build:
-            coros.append(compiler.build_files())
-        res = await asyncio.gather(*coros)
-        success = []
-        errors = []
-        for el in res:
-            success += el[0]
-            errors += el[1]
-        return success, errors
+            if source.stem == name:
+                return await self.compile_file(source)
+        raise CompilerException(f"Cannot find the source code for user {name} in {self.source_folder}")
 
-    async def compile_file(self, name: str) -> str:
+    async def compile_file(self, name: Path) -> Path:
         compilers = self._get_compilers()
-        for source in self._get_sources():
-            if source.name == name and source.type in compilers:
-                return await compilers[source.type].build_file(source)
 
-    def _get_sources(self) -> list[Source]:
-        res = []
-        for root, dirs, files in os.walk(self.source_folder):
-            for name in files:
-                res.append(Source(os.path.join(root, name)))
-        return res
+        if not name.exists():
+            raise CompilerException("File {name} does not exists")
+
+        self.compile_folder.mkdir(parents=True, exist_ok=True)
+
+        try:
+            executable = await compilers[name.suffix].build_file(name, self.compile_folder)
+        except KeyError:
+            raise CompilerException(f"There is no compiler for {name.name}: \
+                extension {name.suffix} is not supported")
+
+        symlink = self.result_folder.joinpath(executable.name)
+        self.result_folder.mkdir(parents=True, exist_ok=True)
+
+        try:
+            symlink.symlink_to(Path.cwd().joinpath(executable))
+        except FileExistsError:
+            pass
+
+        return symlink
+
+    def _get_sources(self) -> list[Path]:
+        return [child for child in self.source_folder.iterdir() if child.is_file()]
 
     @staticmethod
     def _get_compilers() -> dict[str, Compiler]:
