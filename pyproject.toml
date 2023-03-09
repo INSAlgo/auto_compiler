@@ -1,0 +1,20 @@
+# pyproject.toml
+
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "auto-compiler"
+version = "0.1"
+description = "A system for auto compiling files"
+readme = "README.md"
+authors = [{ name = "INSALGO", email = "insalgo.contact@gmail.com" }]
+license = { file = "LICENSE" }
+
+dependencies = []
+
+requires-python = ">=3.10"
+
+[project.urls]
+Homepage = "https://github.com/INSAlgo/auto_compiler"
