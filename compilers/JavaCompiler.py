@@ -36,6 +36,6 @@ class JavaCompiler(Compiler):
         # Should probably use something more robust than regex
         with open(file, "r") as f:
             filedata = f.read()
-        filedata = re.sub(r'public class .*\n?{', f'public class {file.stem} {"{"} \n', filedata)
+        filedata = re.sub(r'public class .*\n?{', f'class {file.stem} {"{"} \n', filedata)
         with open(file, "w") as f:
             f.write(filedata)

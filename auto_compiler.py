@@ -2,9 +2,9 @@ import asyncio
 
 from pathlib import Path
 
-from auto_compiler.compiler import Compiler
-from auto_compiler.compilers import *
-from auto_compiler.errors import CompilerException
+from .compiler import Compiler
+from .compilers import *
+from .errors import CompilerException
 
 class AutoCompiler:
     source_folter: str
