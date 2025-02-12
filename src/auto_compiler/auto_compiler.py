@@ -12,8 +12,8 @@ class AutoCompiler:
     def __init__(
         self,
         source_folder: Path,
-        compile_folder: Path = Path('out'),
-        result_folder: Path = Path('ais')
+        compile_folder: Path = Path("out"),
+        result_folder: Path = Path("ais")
     ) -> None:
 
         self.source_folder = source_folder
@@ -43,10 +43,9 @@ class AutoCompiler:
         symlink = self.result_folder.joinpath(executable.name)
         self.result_folder.mkdir(parents=True, exist_ok=True)
 
-        try:
-            symlink.symlink_to(Path.cwd().joinpath(executable))
-        except FileExistsError:
-            pass
+        if symlink.exists():
+            symlink.unlink()
+        symlink.symlink_to(Path.cwd().joinpath(executable))
 
         return symlink
 
