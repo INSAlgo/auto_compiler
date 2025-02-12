@@ -16,26 +16,23 @@ class JavaCompiler(Compiler):
         ...
 
     async def build_file(self, file: Path, compile_dir: Path) -> Path:
-        self.modify_class_name(file)
-        executable = compile_dir.joinpath(Path(f"{file.stem}.class"))
+        compile_ai_dir = compile_dir / file.stem
+        if compile_ai_dir.exists():
+            for old_file in compile_ai_dir.glob("*.class"):
+                old_file.unlink()
+        else:
+            compile_ai_dir.mkdir(parents=True)
         process = await create_subprocess_exec(
-            "javac", "-d", str(compile_dir), str(file), stdout=PIPE, stderr=PIPE
+            "javac", "-d", str(compile_ai_dir), str(file), stdout=PIPE, stderr=PIPE
         )
         stdout, stderr = await process.communicate()
         print(stdout.decode("utf-8"))
         if not process.returncode:
-            if executable.exists():
-                return executable
+            class_files = list(compile_ai_dir.glob("*.class"))
+            if len(class_files) > 0:
+                executable = class_files[0]
+                return executable.rename(compile_ai_dir / f"{file.stem}.class")
             else:
-                raise CompilerException("File {file} wasn't created")
+                raise CompilerException("File wasn't created")
         else:
             raise CompilerException(stderr.decode("utf-8"))
-
-    @staticmethod
-    def modify_class_name(file):
-        # Should probably use something more robust than regex
-        with open(file, "r") as f:
-            filedata = f.read()
-        filedata = re.sub(r'public class .*\n?{', f'class {file.stem} {"{"} \n', filedata)
-        with open(file, "w") as f:
-            f.write(filedata)
