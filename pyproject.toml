@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "auto-compiler"
-version = "0.1"
+version = "0.2"
 description = "A system for auto compiling files"
 readme = "README.md"
 authors = [{ name = "INSALGO", email = "insalgo.contact@gmail.com" }]
