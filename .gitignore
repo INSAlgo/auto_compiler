@@ -1,9 +1,11 @@
 .vscode/*
 .idea/*
+.venv/*
 venv/*
 env/*
 dist/*
 out/*
+*.egg-info
 *.out
 __pycache__/*
 *.pyc
