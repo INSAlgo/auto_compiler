@@ -27,7 +27,7 @@ class DotNetCompiler(Compiler):
             if executable.exists():
                 return executable
             else:
-                raise CompilerException("File {file} wasn't created")
+                raise CompilerException("File wasn't created")
         else:
             raise CompilerException(stderr.decode("utf-8"))
 
@@ -43,7 +43,7 @@ class DotNetCompiler(Compiler):
         csproj = tmp.joinpath(file.stem+".csproj")
         csproj_content = \
             '<Project Sdk="Microsoft.NET.Sdk">\n<PropertyGroup>\n<OutputType>Exe</OutputType>\n' \
-            '<TargetFramework>net6.0</TargetFramework>\n<RootNamespace>test_cs</RootNamespace>\n' \
+            '<TargetFramework>net9.0</TargetFramework>\n<RootNamespace>test_cs</RootNamespace>\n' \
             '<ImplicitUsings>enable</ImplicitUsings>\n<Nullable>enable</Nullable>\n</PropertyGroup>\n</Project>'
 
         with open(csproj, "w") as f:

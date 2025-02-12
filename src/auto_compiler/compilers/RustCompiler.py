@@ -27,7 +27,7 @@ class RustCompiler(Compiler):
             if executable.exists():
                 return executable
             else:
-                raise CompilerException("File {file} wasn't created")
+                raise CompilerException("File wasn't created")
         else:
             raise CompilerException(stderr.decode("utf-8"))
 
